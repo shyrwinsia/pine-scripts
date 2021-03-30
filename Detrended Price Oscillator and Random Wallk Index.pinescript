@@ -1,0 +1,27 @@
+//@version=4
+study(title="Detrended Price Oscillator with Random Walk Index", shorttitle="DPO/RWI", format=format.price, precision=2)
+
+period_ = input(21, title="Detrended Lookback Period", minval=1)
+length = input(9, title="Randowm Walk Length")
+
+
+isCentered = input(false, title="Centered")
+barsback = period_/2 + 1
+ma = sma(close, period_)
+dpo = isCentered ? close[barsback] - ma : close - ma[barsback]
+
+
+hline(0, title="Zero Line", color = color.white, linestyle=hline.style_solid)
+hline(1, title="One Line", color = color.white, linestyle=hline.style_dotted)
+// p1 = plot(dpo*(0.0001/syminfo.mintick), offset = isCentered ? -barsback : 0, title="Detrended Price Oscillator", transp=60)
+// fill(p1, plot(0), color=color.silver)
+
+sessioncolor = dpo > 0 ? color.teal : color.red
+bgcolor(sessioncolor, transp=80)
+
+rwiHigh = hma((high - nz(low[length])) / (atr(length) * sqrt(length)), length)
+rwiLow = hma((nz(high[length]) - low) / (atr(length) * sqrt(length)), length)
+// rwiHighColor = rwiHigh > 1 ? color.teal : color.gray
+// rwiLowColor = rwiLow > 1 ? color.orange : color.gray
+plot(rwiHigh, title="High", linewidth=2, color=color.teal)
+plot(rwiLow, title="Low", linewidth=2, color=color.orange)
