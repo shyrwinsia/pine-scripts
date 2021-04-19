@@ -1,0 +1,52 @@
+//@version=4
+study("Triple Supertrend", overlay = true, format=format.price, precision=2, resolution="")
+
+src = input(hl2, title="Source")
+sPeriod = input(title="Short ATR Period", type=input.integer, defval=10)
+sMultiplier = input(title="Short ATR Multiplier", type=input.float, step=0.1, defval=1.0)
+mPeriod = input(title="Medium ATR Period", type=input.integer, defval=11)
+mMultiplier = input(title="Medium ATR Multiplier", type=input.float, step=0.1, defval=2.0)
+lPeriod = input(title="Long ATR Period", type=input.integer, defval=12)
+lMultiplier = input(title="Long ATR Multiplier", type=input.float, step=0.1, defval=3.0)
+
+
+satr = atr(sPeriod)
+sup = src - (sMultiplier * satr)
+sup1 = nz(sup[1], sup)
+sup := close[1] > sup1 ? max(sup, sup1) : sup
+sdn = src + (sMultiplier * satr)
+sdn1 = nz(sdn[1], sdn)
+sdn := close[1] < sdn1 ? min(sdn, sdn1) : sdn
+strend = 1
+strend := nz(strend[1], strend)
+strend := strend == -1 and close > sdn1 ? 1 : strend == 1 and close < sup1 ? -1 : strend
+supPlot = plot(strend == 1 ? sup : na, title="Short Up Trend", style=plot.style_linebr, linewidth=1, color=color.green)
+sdnPlot = plot(strend == 1 ? na : sdn, title="Short Down Trend", style=plot.style_linebr, linewidth=1, color=color.red)
+
+matr = atr(mPeriod)
+mup = src - (mMultiplier * matr)
+mup1 = nz(mup[1], mup)
+mup := close[1] > mup1 ? max(mup, mup1) : mup
+mdn = src + (mMultiplier * matr)
+mdn1 = nz(mdn[1], mdn)
+mdn := close[1] < mdn1 ? min(mdn, mdn1) : mdn
+mtrend = 1
+mtrend := nz(mtrend[1], mtrend)
+mtrend := mtrend == -1 and close > mdn1 ? 1 : mtrend == 1 and close < mup1 ? -1 : mtrend
+mupPlot = plot(mtrend == 1 ? mup : na, title="Medium Up Trend", style=plot.style_linebr, linewidth=3, color=color.green)
+mdnPlot = plot(mtrend == 1 ? na : mdn, title="Medium Down Trend", style=plot.style_linebr, linewidth=3, color=color.red)
+
+latr = atr(lPeriod)
+lup = src - (lMultiplier * latr)
+lup1 = nz(lup[1], lup)
+lup := close[1] > lup1 ? max(lup, lup1) : lup
+ldn = src + (lMultiplier * latr)
+ldn1 = nz(ldn[1], ldn)
+ldn := close[1] < ldn1 ? min(ldn, ldn1) : ldn
+ltrend = 1
+ltrend := nz(ltrend[1], ltrend)
+ltrend := ltrend == -1 and close > ldn1 ? 1 : ltrend == 1 and close < lup1 ? -1 : ltrend
+lupPlot = plot(ltrend == 1 ? lup : na, title="Long Up Trend", style=plot.style_linebr, linewidth=5, color=color.green)
+ldnPlot = plot(ltrend == 1 ? na : ldn, title="Long Down Trend", style=plot.style_linebr, linewidth=5, color=color.red)
+
+plot(ema(close, 200), color=color.white, linewidth=5)
